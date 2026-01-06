@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lịch Công Tác Đơn Vị</title>
+    <title>Lịch họp UBND phường An Lạc</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         /* GIỮ NGUYÊN GIAO DIỆN CŨ CỦA BẠN */
@@ -13,7 +13,19 @@
         .date-now { font-size: 1.5em; color: #8b949e; margin-top: 10px; }
         .container { margin-top: 160px; padding: 0 20px 50px 20px; }
         table { width: 100%; border-collapse: collapse; font-size: 2.2em; }
-        thead th { background-color: #21262d; color: #58a6ff; padding: 20px; text-align: left; border-bottom: 2px solid #30363d; }
+        thead th {
+            background-color: #21262d;
+            color: #58a6ff;
+            padding: 20px;
+            text-align: left;
+            border-bottom: 2px solid #30363d;
+            
+            /* --- ĐOẠN MỚI THÊM VÀO ĐỂ CỐ ĐỊNH --- */
+            position: sticky; /* Kích hoạt chế độ dính */
+            top: 158px;       /* Dính ở vị trí cách đỉnh màn hình 158px (ngay dưới banner) */
+            z-index: 500;     /* Ưu tiên hiển thị lớp trên cùng để không bị chữ đè lên */
+            box-shadow: 0 4px 5px -2px rgba(0,0,0,0.5); /* Tạo bóng đổ nhẹ cho đẹp */
+        }
         tbody td { padding: 20px; border-bottom: 1px solid #30363d; vertical-align: top; }
         tbody tr:nth-child(even) { background-color: #161b22; }
         tbody tr:nth-child(odd) { background-color: #0d1117; }
@@ -117,4 +129,5 @@
 
     </script>
 </body>
+
 </html>
