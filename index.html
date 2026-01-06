@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Công Tác Đơn Vị</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        /* GIỮ NGUYÊN GIAO DIỆN CŨ CỦA BẠN */
+        body { background-color: #0d1117; color: #e6edf3; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; overflow: hidden; }
+        .header { background-color: #161b22; padding: 20px; text-align: center; border-bottom: 3px solid #1f6feb; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        h1 { margin: 0; font-size: 3.5em; text-transform: uppercase; color: #ffcc00; }
+        .date-now { font-size: 1.5em; color: #8b949e; margin-top: 10px; }
+        .container { margin-top: 160px; padding: 0 20px 50px 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 2.2em; }
+        thead th { background-color: #21262d; color: #58a6ff; padding: 20px; text-align: left; border-bottom: 2px solid #30363d; }
+        tbody td { padding: 20px; border-bottom: 1px solid #30363d; vertical-align: top; }
+        tbody tr:nth-child(even) { background-color: #161b22; }
+        tbody tr:nth-child(odd) { background-color: #0d1117; }
+        td:first-child { font-weight: bold; color: #ff7b72; width: 15%; white-space: nowrap; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>LỊCH CÔNG TÁC TUẦN</h1>
+        <div class="date-now" id="clock">Đang kết nối...</div>
+    </div>
+
+    <div class="container">
+        <table id="scheduleTable">
+            <thead><tr id="tableHeader"></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // ================= CẤU HÌNH =================
+        // Link CSV GỐC của bạn (Không qua proxy nào cả)
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSC1bnOFAdTZ1OAOxUT559XrguAZIwaP915yTLENx-NKV1n4AqK0SHiwXGSmsMdPeiB1eD6nVYuahXo/pub?gid=0&single=true&output=csv';
+        // ============================================
+
+        function loadData() {
+            // Sử dụng thư viện PapaParse để tải dữ liệu
+            Papa.parse(sheetUrl, {
+                download: true,
+                header: false, // Đọc theo dạng hàng/cột (Array)
+                complete: function(results) {
+                    const data = results.data;
+                    renderTable(data);
+                    
+                    const now = new Date();
+                    console.log("Cập nhật thành công: " + now.toLocaleTimeString());
+                },
+                error: function(err) {
+                    console.error("Lỗi:", err);
+                    document.getElementById('clock').innerText = "Lỗi kết nối! Vui lòng kiểm tra mạng.";
+                }
+            });
+        }
+
+        function renderTable(data) {
+            const tableHead = document.querySelector('#tableHeader');
+            const tableBody = document.querySelector('#scheduleTable tbody');
+            
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            // Xử lý tiêu đề (Dòng 1)
+            if (data.length > 0) {
+                data[0].forEach(header => {
+                    if(header) {
+                        const th = document.createElement('th');
+                        th.textContent = header;
+                        tableHead.appendChild(th);
+                    }
+                });
+            }
+
+            // Xử lý nội dung (Từ dòng 2 trở đi)
+            for (let i = 1; i < data.length; i++) {
+                // Kiểm tra dòng có dữ liệu không (tránh dòng trống)
+                if (data[i].length > 1 && data[i][0] !== '') {
+                    const tr = document.createElement('tr');
+                    data[i].forEach(col => {
+                        const td = document.createElement('td');
+                        td.textContent = col; 
+                        tr.appendChild(td);
+                    });
+                    tableBody.appendChild(tr);
+                }
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('clock').innerText = now.toLocaleDateString('vi-VN', options);
+        }
+
+        function autoScroll() {
+            if (document.body.scrollHeight <= window.innerHeight) return;
+            window.scrollBy(0, 1);
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                setTimeout(() => {
+                    window.scrollTo(0, 0);
+                    loadData(); // Tải lại khi cuộn hết trang
+                }, 2000); 
+            }
+        }
+
+        // Chạy lần đầu
+        loadData();
+        setInterval(updateClock, 1000);
+        setInterval(autoScroll, 50);
+        setInterval(loadData, 300000); // 5 phút tải lại 1 lần dự phòng
+
+    </script>
+</body>
+</html>
